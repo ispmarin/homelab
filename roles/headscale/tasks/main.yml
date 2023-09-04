@@ -1,0 +1,84 @@
+---
+
+- name: Create headscale group
+  ansible.builtin.group:
+    name: "{{ headscale_group }}"
+    state: present
+
+- name: Create headscale user
+  ansible.builtin.user:
+    name: "{{ headscale_user }}"
+    group: "{{ headscale_group }}"
+    system: true
+    home: "{{ headscale_home }}"
+    shell: /usr/bin/nologin
+
+- name: Create folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ headscale_user }}"
+    group: "{{ headscale_group }}"
+    mode: u+rwX,g+rwX,o+r
+    state: directory
+  loop:
+    - "{{ headscale_etc }}"
+    - "{{ headscale_home }}"
+    - "{{ headscale_run }}"
+
+- name: Install headscale
+  ansible.builtin.package:
+    deb: https://github.com/juanfont/headscale/releases/download/v0.22.3/headscale_0.22.3_linux_amd64.deb
+
+- name: Add Tailscale apt repository
+  block:
+    - name: tailscale |no apt key
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg
+        dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+
+    - name: tailscale | apt source
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bookworm main"
+        state: present
+        filename: tailscale
+
+    - name: Install tailscale
+      ansible.builtin.apt:
+        package: tailscale
+        state: latest
+        install_recommends: no
+        update_cache: yes
+        autoclean: yes
+        autoremove: yes
+
+- name: Create empty sqlite database if does not exist
+  ansible.builtin.file:
+    path: "{{ headscale_home }}/db.sqlite"
+    state: touch
+    mode: u+rwX,g+Xr,o+X
+    owner: "{{ headscale_user }}"
+    group: "{{ headscale_group }}"
+
+- name: Copy Configuration templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: u+rwX,g+rwX,o+r
+  loop:
+    - { src: headscale/config.yaml, dest: "{{ headscale_etc }}/config.yaml" }
+
+- name: Add automatic SSL creation to caddy
+  ansible.builtin.lineinfile:
+    path: "{{ webserver_path }}/Caddyfile"
+    block: |
+      hs1.tunguska.cc {
+          tls {
+               dns porkbun {
+                            api_key {{ porkbun_api_key }}
+                            api_secret_key {{ porkbun_secret_api_key }}
+                            }
+               }
+      	respond "Meteors fall from the sky"
+      }

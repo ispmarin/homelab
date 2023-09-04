@@ -1,0 +1,43 @@
+---
+
+- name: Package installation
+  block:
+
+  - name: Install apt packages
+    package:
+      state: latest
+      install_recommends: no
+      update_cache: yes
+      autoclean: yes
+      autoremove: yes
+      name: "{{ containerserver_packages }}"
+
+- name: Add users to group docker
+  user:
+    name: '{{ user }}'
+    groups: docker
+    append: yes
+  loop:
+    - "{{ user }}"
+    - "{{ service_user }}"
+    -
+- name: Create folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g=+rwX,o=+rX
+    recurse: yes
+  loop:
+    - "{{ docker_compose_path }}"
+
+- name: Copy files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX
+  loop:
+    - { src: docker-compose/docker-compose.watchtower.yml, dest: "{{ docker_compose_path }}/docker-compose.watchtower.yml" }

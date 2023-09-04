@@ -1,0 +1,45 @@
+---
+version: '3.5'
+
+networks:
+  homelab:
+    external: true
+
+services:
+  navidrome:
+    image: "deluan/navidrome:latest"
+    container_name: "navidrome"
+    hostname: "navidrome"
+    entrypoint:
+      - "/app/navidrome"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "ND_MUSICFOLDER=/music"
+      - "ND_DATAFOLDER=/data"
+      - "ND_PORT=4533"
+      - "GODEBUG=asyncpreemptoff=1"
+    networks:
+      - "homelab"
+#    ports:
+#      - "4533:4533/tcp"
+    restart: "always"
+    volumes:
+      - ${NAVIDROME_CONFIG_PATH}:/data
+      - ${MUSIC_PATH}:/music
+    working_dir: "/app"
+
+  mstream:
+    image: lscr.io/linuxserver/mstream:latest
+    container_name: mstream
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${MSTREAM_CONFIG_PATH}:/config
+      - ${MUSIC_PATH}:/music
+    networks:
+      - homelab
+#    ports:
+#      - 3000:3000
+    restart: unless-stopped

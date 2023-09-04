@@ -1,0 +1,22 @@
+---
+
+nfs_mount_path: "/srv/nas"
+
+music_path:  "{{ nfs_mount_path }}/media/music"
+downloads_path: "{{ nfs_mount_path }}/downloads"
+
+navidrome_config_path: "{{ data_services_path }}/navidrome"
+
+sound_packages:
+  - ffmpeg
+  - lame
+  - libmp3lame0
+  - vainfo
+  - lshw
+  - wodim
+  - cdw
+  - virtualenv
+  - python3-pip
+  - mpd
+  - mpc
+

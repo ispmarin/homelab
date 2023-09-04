@@ -1,0 +1,74 @@
+---
+- name: Package install and user configuration
+  tags: apt
+  block:
+
+  - name: Create /usr/local/share/keyrings
+    ansible.builtin.file:
+      path: /usr/local/share/keyrings
+      state: directory
+      mode: g+rwX,o+rwX
+
+  - name: Add caddy gpg key
+    ansible.builtin.get_url:
+      url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+      dest: /tmp/caddy.asc
+
+  - name: De-Armor Caddy GPG key
+    ansible.builtin.shell: gpg --dearmor < /tmp/caddy.asc > /usr/local/share/keyrings/caddy-keyring.gpg
+    
+  - name: Caddy repository
+    ansible.builtin.apt_repository:
+     repo: "deb [signed-by=/usr/local/share/keyrings/caddy-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
+     state: present
+
+  - name: Install apt packages
+    ansible.builtin.package:
+      state: latest
+      install_recommends: no
+      update_cache: yes
+      autoclean: yes
+      autoremove: yes
+      name: "{{ mediaserver_packages }}"
+
+  - name: Add kodi user to groups
+    ansible.builtin.user:
+      state: present
+      name: kodi
+      groups: "{{ kodi_groups }}"
+      append: yes
+
+  - name: Copy files
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: caddy/xmbc.caddy, dest: "{{ webserver_path }}/config/xmbc.caddy" }
+
+  - name: Setup x11vnc password
+    ansible.builtin.shell: "x11vnc -storepasswd {{ vnc_password }} /etc/vncpasswd"
+  
+  - name: Setup X11VNC at startup
+    ansible.builtin.copy:
+      src: systemd/x11vnc.service
+      dest: /lib/systemd/system/x11vnc.service
+  
+  - name: Enable x11vnc service
+    ansible.builtin.systemd:
+      name: x11vnc.service
+      state: started
+      enabled: yes
+
+
+  - name: Copy template files
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: caddy/xmbc.caddy, dest: "{{ webserver_path }}/config/xmbc.caddy" }

@@ -1,0 +1,72 @@
+---
+- name: Package install and user configuration
+  tags: apt
+  block:
+
+  - name: Create folders
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g=+rwX,o=+rX
+      recurse: yes
+    loop:
+      - "{{ music_path }}"
+      - "{{ downloads_path }}"
+      - "{{ docker_compose_path }}"
+      - "{{ webserver_path }}"
+      - "{{ webserver_path }}/config"
+    ignore_errors: true
+
+  - name: Install base packages
+    ansible.builtin.package:
+      name: "{{ sound_packages }}"
+      state: present
+      install-recommends: yes
+      autoclean: true
+      autoremove: true
+
+- name: Setup system configurations
+  tags: system
+  block:
+    - name: Mount NAS NFS music folder
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        backup: yes
+        line: "192.168.1.2:/volume1/media/music                   {{ music_path }}     nfs    defaults,rw,nofail 0   0"
+        create: yes
+
+
+- name: Setup Docker Compose services
+  tags: docker
+  block:
+
+  - name: Create homelab network
+    docker_network:
+      name: "{{ docker_network }}"
+
+  - name: Copy files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/docker-compose.sound.yml, dest: "{{ docker_compose_path }}/docker-compose.sound.yml" }
+
+
+  - name: Copy template files
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/sound.env, dest: "{{ docker_compose_path }}/.sound.env" }
+      - { src: caddy/soundserver.caddy, dest: "{{ webserver_path }}/config/soundserver.caddy" }
+
+- set volume
+amixer -D pipewire sset Master 5%-

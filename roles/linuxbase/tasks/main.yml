@@ -1,0 +1,101 @@
+---
+- name: Configure system
+  tags: system
+  block:
+    - name: Sysctl configuration
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_set: true
+      loop:
+        - { name: net.core.rmem_max, value: 16777216}
+        - { name: net.core.wmem_max, value: 16777216}
+        - { name: net.ipv4.tcp_rmem, value: 10240 87380 12582912}
+        - { name: net.ipv4.tcp_wmem, value: 10240 87380 12582912}
+        - { name: net.ipv4.tcp_window_scaling, value: 1}
+        - { name: net.ipv4.tcp_timestamps, value: 1}
+        - { name: net.ipv4.tcp_sack, value: 1}
+        #- { name: net.ipv6.conf.all.disable_ipv6, value: 1}
+        - { name: fs.inotify.max_user_watches, value: 524288}
+
+
+    - name: Update System
+      ansible.builtin.package:
+        update_cache: true
+        upgrade: full
+        autoclean: true
+        autoremove: true
+      ignore_errors: true
+
+    - name: Install base packages
+      ansible.builtin.package:
+        name: "{{ common_packages }}"
+        state: present
+        install-recommends: false
+        autoclean: true
+        autoremove: true
+      ignore_errors: true
+
+#    - name: Install apt packages
+#      package:
+#        state: latest
+#        install_recommends: no
+#        update_cache: yes
+#        autoclean: yes
+#        autoremove: yes
+#        name:
+#          - bluetooth
+#          - firmware-iwlwifi
+#          - rfkill
+#          - raspi-firmware
+#      when: platform_name=raspberrypi
+
+- name: Create service group
+  ansible.builtin.group:
+    name: "{{ service_group }}"
+    state: present
+    gid: "{{ gid_service_group }}"
+
+- name: Create service user
+  ansible.builtin.user:
+    name: "{{ service_user }}"
+    uid: "{{ uid_service_user }}"
+    group: "{{ service_group }}"
+    shell: /bin/bash
+
+- name: Add service user to group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: "{{ service_group }}"
+    shell: /bin/bash
+  loop:
+    - "{{ user }}"
+    - "{{ service_user }}"
+
+- name: Copy template files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: a+r
+    owner: root
+  loop:
+    - { src: sudo/user_sudo.j2, dest: "/etc/sudoers.d/{{ user }}"}
+    - { src: wakeonlan/wol.service, dest: /etc/systemd/system/wol.service }
+
+- name: Enable wakeonlan service
+  ansible.builtin.systemd:
+    name: wol.service
+    enabled: true
+    state: reloaded
+
+- name: Copy Chrony configuration
+  ansible.builtin.copy:
+    src: chrony/br-servers.sources
+    dest: /etc/chrony/sources.d/br-servers.sources
+    mode: a+r
+    owner: root
+
+- name: Set hardware clock
+  community.general.timezone:
+    hwclock: UTC
+    name: "{{ tz }}"

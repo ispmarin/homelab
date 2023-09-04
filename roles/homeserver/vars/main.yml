@@ -1,0 +1,11 @@
+bitwarden_url: bitwarden.tunguska.cc
+bitwarden_data_path: "{{ data_services_path }}/bitwarden/data"
+bitwarden_external_backup_dir: "{{ data_services_path }}/bitwarden/backup"
+
+vscode_path: "/var/lib/codeserver/workspaces"
+
+wyl_config: "{{ data_services_path }}/watchyourlan"
+
+dozzle_user: "{{ user }}"
+
+  

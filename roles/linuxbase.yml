@@ -1,0 +1,6 @@
+---
+
+- hosts: linuxbase 
+  roles:
+    - role: linuxbase
+      tags: linuxbase

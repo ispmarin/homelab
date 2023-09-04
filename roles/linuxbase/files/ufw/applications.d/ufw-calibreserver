@@ -1,0 +1,4 @@
+[calibreserver]
+title=Calibre Server
+description=Calibre Server is a ebook server
+ports=9191/tcp

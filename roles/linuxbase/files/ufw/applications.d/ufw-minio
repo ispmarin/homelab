@@ -1,0 +1,4 @@
+[Minio]
+title=Minio
+description=Minio block storage
+ports=9000:9010/tcp

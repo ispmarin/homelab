@@ -1,0 +1,15 @@
+tz: America/Sao_Paulo
+user: imarin
+service_user: homelab
+uid_service_user: 200
+service_group: data
+gid_service_group: 200
+
+shared_folder: /srv
+media_path: /srv/media 
+downloads_path: /srv/downloads
+smb_share_path: "{{ shared_folder }}/share"
+data_services_path: /etc
+webserver_path: "{{ data_services_path }}/caddy"
+docker_compose_path: "{{ data_services_path }}/homelab"
+docker_network: homelab

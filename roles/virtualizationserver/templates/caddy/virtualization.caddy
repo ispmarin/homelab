@@ -1,0 +1,4 @@
+@ravada host virt.{{ inventory_hostname }}
+    handle @ravada {
+        reverse_proxy ravada-front:3000
+    }

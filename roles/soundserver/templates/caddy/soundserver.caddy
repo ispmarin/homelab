@@ -1,0 +1,9 @@
+@music host music.{{ inventory_hostname }}
+    handle @music {
+        reverse_proxy navidrome:4533
+}
+
+@mstream host mstream.{{ inventory_hostname }}
+    handle @mstream {
+        reverse_proxy mstream:3000
+}

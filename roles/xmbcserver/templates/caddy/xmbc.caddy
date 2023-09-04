@@ -1,0 +1,4 @@
+@xmbc host xmbc.{{ inventory_hostname }}
+    handle @xmbc {
+        reverse_proxy localhost:8080
+}

@@ -1,0 +1,11 @@
+https://locadora.tunguska.cc {
+	tls {
+		dns porkbun {
+            api_key {{ porkbun_api_key }}
+            api_secret_key {{ porkbun_secret_api_key }}
+		}
+	}
+
+	reverse_proxy jellyfin:8096
+
+}

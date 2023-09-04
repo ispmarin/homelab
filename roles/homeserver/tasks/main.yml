@@ -1,0 +1,34 @@
+---
+- name: Create folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    state: directory
+    mode: g+rwX
+  loop:
+    - "{{ docker_compose_path }}"
+    - "{{ filebrowser_config_path }}"
+    - /usr/local/share/keyrings
+    - "{{ syncthing_config_path }}"
+
+- name: Copy template files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX
+  loop:
+    - { src: docker-compose/home.env, dest: "{{ docker_compose_path }}/.home.env"}
+    - { src: caddy/homeservices.caddy, dest: "{{ webserver_path }}/config/homeservices.caddy" }
+
+- name: Copy files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX
+  loop:
+    - { src: docker-compose/docker-compose.home.yml, dest: "{{ docker_compose_path }}/docker-compose.home.yml" }

@@ -1,0 +1,378 @@
+
+
+networks:
+  homelab:
+    external: true
+    name: "homelab"
+
+services:
+
+  metube:
+    image: "alexta69/metube:latest"
+    command:
+      - "./docker-entrypoint.sh"
+    container_name: "metube"
+    hostname: "metube"
+    environment:
+      - "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "LANG=C.UTF-8"
+      - "GPG_KEY=E3FF2839C048B25C084DEBE9B26995E310250568"
+      - "PYTHON_VERSION=3.8.17"
+      - "PYTHON_PIP_VERSION=23.0.1"
+      - "PYTHON_SETUPTOOLS_VERSION=57.5.0"
+      - "PYTHON_GET_PIP_URL=https://github.com/pypa/get-pip/raw/0d8570dc44796f4369b652222cf176b3db6ac70e/public/get-pip.py"
+      - "PYTHON_GET_PIP_SHA256=96461deced5c2a487ddc65207ec5a9cffeca0d34e7af7ea1afc470ff0d746207"
+      - "UID=1026"
+      - "GID=100"
+      - "UMASK=022"
+      - "DOWNLOAD_DIR=/downloads"
+      - "STATE_DIR=/downloads/.metube"
+      - "TEMP_DIR=/downloads"
+    ipc: "private"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "8081:8081/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/downloads:/downloads"
+    working_dir: "/app"
+
+  navidrome:
+    image: "deluan/navidrome:latest"
+    container_name: "navidrome"
+    hostname: "navidrome"
+    entrypoint:
+      - "/app/navidrome"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "ND_MUSICFOLDER=/music"
+      - "ND_DATAFOLDER=/data"
+      - "ND_PORT=4533"
+      - "GODEBUG=asyncpreemptoff=1"
+    ipc: "private"
+    labels:
+      maintainer: "deluan@navidrome.org"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "4533:4533/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/docker/services/navidrome:/data"
+      - "/volume1/music:/music"
+    working_dir: "/app"
+
+  prowlarr:
+    image: "linuxserver/prowlarr:latest"
+    container_name: "prowlarr"
+    hostname: "prowlarr2"
+    entrypoint:
+      - "/init"
+    environment:
+      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "PS1=$(whoami)@$(hostname):$(pwd)\\$ "
+      - "HOME=/root"
+      - "TERM=xterm"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_VERBOSITY=1"
+      - "S6_STAGE2_HOOK=/docker-mods"
+      - "VIRTUAL_ENV=/lsiopy"
+      - "LSIO_FIRST_PARTY=true"
+      - "XDG_CONFIG_HOME=/config/xdg"
+      - "LANGUAGE=en_US.UTF-8"
+      - "LANG=en_US.UTF-8"
+      - "PGID=100"
+    ipc: "private"
+    labels:
+      build_version: "Linuxserver.io version:- 1.6.3.3608-ls22 Build-date:- 2023-06-28T12:49:55+00:00"
+      maintainer: "Roxedus,thespad"
+      org.opencontainers.image.authors: "linuxserver.io"
+      org.opencontainers.image.created: "2023-06-28T12:49:55+00:00"
+      org.opencontainers.image.description: "[Prowlarr](https://github.com/Prowlarr/Prowlarr)\
+        \ is a indexer manager/proxy built on the popular arr .net/reactjs base stack\
+        \ to integrate with your various PVR apps. Prowlarr supports both Torrent\
+        \ Trackers and Usenet Indexers. It integrates seamlessly with Sonarr, Radarr,\
+        \ Lidarr, and Readarr offering complete management of your indexers with no\
+        \ per app Indexer setup required (we do it all).  "
+      org.opencontainers.image.documentation: "https://docs.linuxserver.io/images/docker-prowlarr"
+      org.opencontainers.image.licenses: "GPL-3.0-only"
+      org.opencontainers.image.ref.name: "dafa37335aa32461d43f5389ea52d9829a6834aa"
+      org.opencontainers.image.revision: "dafa37335aa32461d43f5389ea52d9829a6834aa"
+      org.opencontainers.image.source: "https://github.com/linuxserver/docker-prowlarr"
+      org.opencontainers.image.title: "Prowlarr"
+      org.opencontainers.image.url: "https://github.com/linuxserver/docker-prowlarr/packages"
+      org.opencontainers.image.vendor: "linuxserver.io"
+      org.opencontainers.image.version: "1.6.3.3608-ls22"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "9696:9696/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/docker/services/prowlarr:/config"
+      - "/volume1/downloads:/downloads"
+    working_dir: "/"
+
+  radarr:
+    image: "linuxserver/radarr:latest"
+    container_name: "radarr"
+    hostname: "radarr"
+    entrypoint:
+      - "/init"
+    environment:
+      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "PS1=$(whoami)@$(hostname):$(pwd)\\$ "
+      - "HOME=/root"
+      - "TERM=xterm"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_VERBOSITY=1"
+      - "S6_STAGE2_HOOK=/docker-mods"
+      - "VIRTUAL_ENV=/lsiopy"
+      - "LSIO_FIRST_PARTY=true"
+      - "XDG_CONFIG_HOME=/config/xdg"
+      - "PGID=100"
+      - "PUID=1026"
+    ipc: "private"
+    labels:
+      build_version: "Linuxserver.io version:- 4.5.2.7388-ls176 Build-date:- 2023-06-21T17:18:29+00:00"
+      maintainer: "thelamer"
+      org.opencontainers.image.authors: "linuxserver.io"
+      org.opencontainers.image.created: "2023-06-21T17:18:29+00:00"
+      org.opencontainers.image.description: "[Radarr](https://github.com/Radarr/Radarr)\
+        \ - A fork of Sonarr to work with movies à la Couchpotato.  "
+      org.opencontainers.image.documentation: "https://docs.linuxserver.io/images/docker-radarr"
+      org.opencontainers.image.licenses: "GPL-3.0-only"
+      org.opencontainers.image.ref.name: "46345e9b412ff13f5d0f9e903af54f63a8324203"
+      org.opencontainers.image.revision: "46345e9b412ff13f5d0f9e903af54f63a8324203"
+      org.opencontainers.image.source: "https://github.com/linuxserver/docker-radarr"
+      org.opencontainers.image.title: "Radarr"
+      org.opencontainers.image.url: "https://github.com/linuxserver/docker-radarr/packages"
+      org.opencontainers.image.vendor: "linuxserver.io"
+      org.opencontainers.image.version: "4.5.2.7388-ls176"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "7878:7878/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/downloads:/downloads"
+      - "/volume1/movies:/movies"
+      - "/volume1/docker/services/radarr:/config"
+    working_dir: "/"
+
+  sonarr:
+    image: "linuxserver/sonarr:latest"
+    container_name: "sonarr"
+    hostname: "sonarr"
+    entrypoint:
+      - "/init"
+
+    environment:
+      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "HOME=/root"
+      - "LANGUAGE=en_US.UTF-8"
+      - "LANG=en_US.UTF-8"
+      - "TERM=xterm"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_VERBOSITY=1"
+      - "S6_STAGE2_HOOK=/docker-mods"
+      - "VIRTUAL_ENV=/lsiopy"
+      - "LSIO_FIRST_PARTY=true"
+      - "XDG_CONFIG_HOME=/config/xdg"
+      - "SONARR_BRANCH=main"
+      - "PGID=100"
+      - "PUID=1026"
+    ipc: "private"
+    labels:
+      build_version: "Linuxserver.io version:- 3.0.10.1567-ls197 Build-date:- 2023-06-19T14:05:11+00:00"
+      maintainer: "aptalca"
+      org.opencontainers.image.authors: "linuxserver.io"
+      org.opencontainers.image.created: "2023-06-19T14:05:11+00:00"
+      org.opencontainers.image.description: "[Sonarr](https://sonarr.tv/) (formerly\
+        \ NZBdrone) is a PVR for usenet and bittorrent users. It can monitor multiple\
+        \ RSS feeds for new episodes of your favorite shows and will grab, sort and\
+        \ rename them. It can also be configured to automatically upgrade the quality\
+        \ of files already downloaded when a better quality format becomes available.\
+        \  "
+      org.opencontainers.image.documentation: "https://docs.linuxserver.io/images/docker-sonarr"
+      org.opencontainers.image.licenses: "GPL-3.0-only"
+      org.opencontainers.image.ref.name: "24255a88043dfe8d93a333ed6f1fbcbef7ffd827"
+      org.opencontainers.image.revision: "24255a88043dfe8d93a333ed6f1fbcbef7ffd827"
+      org.opencontainers.image.source: "https://github.com/linuxserver/docker-sonarr"
+      org.opencontainers.image.title: "Sonarr"
+      org.opencontainers.image.url: "https://github.com/linuxserver/docker-sonarr/packages"
+      org.opencontainers.image.vendor: "linuxserver.io"
+      org.opencontainers.image.version: "3.0.10.1567-ls197"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "8989:8989/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/docker/services/sonarr:/config"
+      - "/volume1/downloads:/downloads"
+      - "/volume1/series:/series"
+    working_dir: "/"
+
+  transmission:
+    image: "linuxserver/transmission:latest"
+    container_name: "transmission"
+    hostname: "transmission"
+    entrypoint:
+      - "/init"
+    environment:
+      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "PS1=$(whoami)@$(hostname):$(pwd)\\$ "
+      - "HOME=/root"
+      - "TERM=xterm"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_VERBOSITY=1"
+      - "S6_STAGE2_HOOK=/docker-mods"
+      - "VIRTUAL_ENV=/lsiopy"
+      - "LSIO_FIRST_PARTY=true"
+      - "PGID=100"
+      - "PUID=1026"
+    ipc: "private"
+    labels:
+      build_version: "Linuxserver.io version:- 4.0.3-r3-ls183 Build-date:- 2023-06-27T10:36:10+00:00"
+      maintainer: "aptalca"
+      org.opencontainers.image.authors: "linuxserver.io"
+      org.opencontainers.image.created: "2023-06-27T10:36:10+00:00"
+      org.opencontainers.image.description: "[Transmission](https://www.transmissionbt.com/)\
+        \ is designed for easy, powerful use. Transmission has the features you want\
+        \ from a BitTorrent client: encryption, a web interface, peer exchange, magnet\
+        \ links, DHT, µTP, UPnP and NAT-PMP port forwarding, webseed support, watch\
+        \ directories, tracker editing, global and per-torrent speed limits, and more."
+      org.opencontainers.image.documentation: "https://docs.linuxserver.io/images/docker-transmission"
+      org.opencontainers.image.licenses: "GPL-3.0-only"
+      org.opencontainers.image.ref.name: "d24cfa8d468bca12a9136daffcb4942a2ce23132"
+      org.opencontainers.image.revision: "d24cfa8d468bca12a9136daffcb4942a2ce23132"
+      org.opencontainers.image.source: "https://github.com/linuxserver/docker-transmission"
+      org.opencontainers.image.title: "Transmission"
+      org.opencontainers.image.url: "https://github.com/linuxserver/docker-transmission/packages"
+      org.opencontainers.image.vendor: "linuxserver.io"
+      org.opencontainers.image.version: "4.0.3-r3-ls183"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - ":51413/tcp"
+      - ":51413/udp"
+      - "9091:9091/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/docker/services/transmission:/config"
+      - "/volume1/downloads:/downloads"
+    working_dir: "/"
+
+  vaultwarden:
+    image: "vaultwarden/server:latest"
+    command:
+      - "/start.sh"
+    container_name: "vaultwarden"
+    hostname: "vaultwarden"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "ROCKET_PROFILE=release"
+      - "ROCKET_ADDRESS=0.0.0.0"
+      - "ROCKET_PORT=80"
+      - "SIGNUPS_ALLOWED=false"
+      - "URL=https://vault.aoshima.tunguska.cc"
+      - "ADMIN_TOKEN=/fubgiSSsfmDP1ItGk5WbUJ0xjZ8dARQcfKUN2Q6gv+DymzVTlxWNr9M56/NJH0w"
+      - "WEBSOCKET_ENABLED=true"
+      - "WEB_VAULT_ENABLED=true"
+    ipc: "private"
+    labels:
+      org.opencontainers.image.created: "2023-04-02T21:37:14+00:00"
+      org.opencontainers.image.documentation: "https://github.com/dani-garcia/vaultwarden/wiki"
+      org.opencontainers.image.licenses: "AGPL-3.0-only"
+      org.opencontainers.image.revision: "0b28ab3be101b58cf27b43da14bcf893fa37c1c8"
+      org.opencontainers.image.source: "https://github.com/dani-garcia/vaultwarden"
+      org.opencontainers.image.url: "https://github.com/dani-garcia/vaultwarden"
+      org.opencontainers.image.version: "1.28.1"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    ports:
+      - "3012:3012/tcp"
+      - "8088:80/tcp"
+    restart: "always"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "/volume1/docker/services/vaultwarden:/data"
+    working_dir: "/"
+
+  watchtower:
+    image: "containrrr/watchtower"
+    command:
+      - "--cleanup"
+    container_name: "watchtower"
+    hostname: "watchtower"
+    entrypoint:
+      - "/watchtower"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    expose:
+      - "8080/tcp"
+    ipc: "private"
+    labels:
+      com.centurylinklabs.watchtower: "true"
+    logging:
+      driver: "db"
+      options: {}
+    networks:
+      - "homelab"
+    restart: "always"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    working_dir: "/"
+
+
+  hammond:
+    image: "akhilrex/hammond"
+    container_name: "hammond"
+    environment:
+      - "JWT_SECRET=bn3dI8xr2kt64s0r"
+    volumes:
+      - "/volume1/docker/services/hammond/config:/config"
+      - "/volume1/docker/services/hammond/data:/assets"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  81521ef66882d91a4bb434f4872da7ef69198d5ce91df9279bf1710c97e767b6:
+    external: true

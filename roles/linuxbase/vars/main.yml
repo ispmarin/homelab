@@ -1,0 +1,29 @@
+---
+common_user_groups: sudo, adm, data, docker
+common_ufw_services_allow:
+  - SSH
+common_packages:
+  - dirmngr
+  - vim
+  - rsync
+  - python3
+  - python3-venv
+  - apt-file
+  - net-tools
+  - chrony
+  - git
+  - gpg
+  - htop
+  - iftop
+  - iotop
+  - man
+  - firmware-linux-free
+  - locales
+  - bash-completion
+  - lvm2
+  - pciutils
+  - usbutils
+  - lm-sensors
+  - lsof
+  - curl
+  - gpg-agent

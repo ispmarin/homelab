@@ -1,0 +1,6 @@
+[rtlsdr]
+title=SoapySDRServer
+description=Soapy SDR Server
+ports=8099/tcp
+
+

@@ -1,0 +1,6 @@
+---
+containerserver_packages: 
+  - docker.io
+  - docker-compose
+  - rootlesskit
+  

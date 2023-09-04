@@ -1,0 +1,12 @@
+---
+
+- hosts: homeservers 
+  roles:
+    - role: linuxbase
+      tags: linuxbase
+    - role: webserver
+      tags: webserver
+    - role: containerserver
+      tags: containerserver
+    - role: homeserver
+      tags: homeserver

@@ -1,0 +1,22 @@
+---
+
+- name: Install apt packages
+  ansible.builtin.package:
+    state: latest
+    install_recommends: no
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+    name: "{{ radioserver_packages }}"
+
+- name: Add user to plugdev group
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups: plugdev
+    append: yes
+
+sudo bash -c "$(wget -nv -O - https://github.com/wiedehopf/tar1090/raw/master/install.sh)"
+curl https://raw.githubusercontent.com/wiedehopf/adsb-scripts/master/osm_tiles_offline.sh | sudo bash
+curl https://raw.githubusercontent.com/wiedehopf/adsb-scripts/master/osm_tiles_offline_10.sh | sudo bash
+
+      

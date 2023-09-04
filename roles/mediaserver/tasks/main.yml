@@ -1,0 +1,59 @@
+---
+- name: Package install and user configuration
+  tags: apt
+  block:
+
+  - name: Create folders
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g=+rwX,o=+rX
+      recurse: yes
+    loop:
+      - "{{ media_path }}"
+      - "{{ movies_path }}"
+      - "{{ series_path }}"
+      - "{{ books_path }}"
+      - "{{ music_path }}"
+      - "{{ downloads_path }}"
+      - "{{ archive_movies_path }}"
+      - "{{ archive_series_path }}"
+      - "{{ docker_compose_path }}"
+      - "{{ webserver_path }}"
+      - "{{ webserver_path }}/config"
+
+  - name: Install base packages
+    ansible.builtin.package:
+      name: "{{ media_packages }}"
+      state: present
+      install-recommends: yes
+      autoclean: true
+      autoremove: true
+
+- name: Setup Docker Compose services
+  tags: docker
+  block:
+
+  - name: Copy files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/docker-compose.media.yml, dest: "{{ docker_compose_path }}/docker-compose.media.yml" }
+
+
+  - name: Copy template files
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/media.env, dest: "{{ docker_compose_path }}/.media.env" }
+      - { src: caddy/mediaserver.caddy, dest: "{{ webserver_path }}/config/mediaserver.caddy" }

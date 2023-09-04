@@ -1,0 +1,55 @@
+---
+
+- name: Create folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g=+rwX,o=+rX
+    recurse: yes
+  loop:
+    - "{{ media_path }}"
+    - "{{ movies_path }}"
+    - "{{ series_path }}"
+    - "{{ music_path }}"
+    - "{{ docker_compose_path }}"
+    - "{{ webserver_path }}"
+    - "{{ webserver_path }}/config"
+
+- name: Install base packages
+  ansible.builtin.package:
+    name: "{{ locadora_packages }}"
+    state: present
+    install-recommends: yes
+    autoclean: true
+    autoremove: true
+
+- name: Copy files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX
+  loop:
+    - { src: docker-compose/docker-compose.locadora.yml, dest: "{{ docker_compose_path }}/docker-compose.locadora.yml" }
+    - { src: fail2ban/jellyfin.local, dest: /etc/fail2ban/jail.d/jellyfin.local }
+    - { src: fail2ban/jellyfin.conf, dest: /etc/fail2ban/filter.d/jellyfin.conf}
+
+- name: Copy template files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX
+  loop:
+    - { src: docker-compose/locadora.env, dest: "{{ docker_compose_path }}/.locadora.env" }
+    - { src: caddy/Caddyfile, dest: "{{ webserver_path }}/Caddyfile" }
+
+- name: Start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
+    daemon-reload: true

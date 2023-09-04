@@ -1,0 +1,21 @@
+---
+
+networks:
+  homelab:
+    external: true
+    name: "homelab"
+
+services:
+  watchtower:
+    image: "containrrr/watchtower"
+    container_name: "watchtower"
+    hostname: "watchtower"
+    environment:
+      - "WATCHTOWER_CLEANUP:true"
+      - "WATCHTOWER_INCLUDE_RESTARTING:true"
+      - "WATCHTOWER_INCLUDE_STOPPED:true"
+    networks:
+      - "homelab"
+    restart: "always"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"

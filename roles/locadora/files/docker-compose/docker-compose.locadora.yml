@@ -1,0 +1,46 @@
+---
+version: '3.5'
+
+networks:
+  homelab:
+    external: true
+
+volumes:
+  database-data:
+
+services:
+
+  jellyfin:
+    image: ghcr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    privileged: true
+    volumes:
+      - ${JELLYFIN_CONFIG_PATH}:/config
+      - ${SERIES_PATH}:/series
+      - ${MOVIES_PATH}:/movies
+      - ${MUSIC_PATH}:/music
+    restart: unless-stopped
+    networks:
+      - homelab
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 600M
+        reservations:
+          cpus: '0.25'
+          memory: 200M
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+
+
+  

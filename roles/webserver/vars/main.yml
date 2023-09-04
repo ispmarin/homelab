@@ -1,0 +1,7 @@
+webserver_packages: python3
+
+caddy_config_file: "{{ webserver_path }}/Caddyfile"
+caddy_data_path: "{{ webserver_path }}/data"
+caddy_config_path: "{{ webserver_path }}/config"
+
+dns_provider: porkbun

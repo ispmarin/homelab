@@ -1,0 +1,55 @@
+---
+version: "2.2"
+
+volumes:
+  sshkeys:
+
+networks:
+  homelab:
+    external: true
+
+services:
+  ravada-mysql:
+    image: mysql:5.7
+    container_name: ravada-mysql
+    volumes:
+      - "/var/lib/mysql:/var/lib/mysql"
+      - "/var/log/mysql:/var/log/mysql"
+    networks:
+      - homelab
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+  ravada-front:
+    image: ravada/front
+    container_name: ravada-front
+    volumes:
+      - "${RAVADA_CONFIG}:/ravada"
+    networks:
+      - homelab
+    restart: unless-stopped
+    depends_on:
+      - ravada-mysql
+
+  ravada-back:
+    image: ravada/back
+    container_name: ravada-back
+    volumes:
+      - "sshkeys:/root/.ssh"
+      - "${RAVADA_CONFIG}/certs/default:/etc/pki/libvirt-spice"
+      - "${RAVADA_STORAGE}:/var/lib/libvirt/images"
+      - "${RAVADA_CONFIG}/etc:/etc/libvirt/qemu"
+      - "${RAVADA_CONFIG}:/ravada"
+    ports:
+      #- "5900-5938:5900-5938"
+    #Unexposed 5939 Teamviewer port
+      - "5940-5999:5940-5999"
+      - "55900-55999:55900-55999"
+    networks:
+      - homelab
+    privileged: true
+    restart: unless-stopped
+    depends_on:
+      - ravada-mysql
+
+

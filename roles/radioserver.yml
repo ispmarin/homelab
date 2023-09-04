@@ -1,0 +1,8 @@
+---
+
+- hosts: radioservers 
+  roles:
+    - role: linuxbase
+      tags: linuxbase
+    - role: radioserver
+      tags: radioserver

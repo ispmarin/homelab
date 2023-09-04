@@ -1,0 +1,12 @@
+---
+
+radioserver_packages: 
+  - soapyremote-server
+  - soapysdr-tools
+  - soapysdr-module-rtlsdr
+  - rtl-sdr
+  - avahi-daemon
+  - rtl-433
+
+lat_sao_carlos: -22.0175
+lon_sao_carlos: -47.89083

@@ -1,0 +1,7 @@
+---
+
+- name: Install base packages on target system
+  raw: apt update; apt install -y python3 sudo
+
+- name: Gather facts
+  setup:

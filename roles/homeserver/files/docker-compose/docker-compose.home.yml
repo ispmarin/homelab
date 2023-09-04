@@ -1,0 +1,72 @@
+---
+
+version: '3.5'
+
+networks:
+  homelab:
+    external: true
+
+volumes:
+  statup:
+
+services:
+
+  vaultwarden:
+    image: docker.io/vaultwarden/server
+    container_name: bitwarden
+    hostname: vaultwarden
+    user: ${PUID}:${PGID}
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - URL=${BW_URL}
+      - WEBSOCKET_ENABLED=${BW_WEBSOCKET_ENABLED}
+      - SIGNUPS_ALLOWED=${BW_SIGNUPS_ALLOWED}
+      - ADMIN_TOKEN=${BW_ADMIN_TOKEN}
+    volumes:
+      - ${BW_DATA_PATH}:/data
+    restart: unless-stopped
+    networks:
+      - homelab
+    ports:
+      - "3012:3012"
+
+  statup:
+    image: adamboutcher/statping-ng:latest
+    container_name: statup
+    restart: always
+    networks:
+      - homelab
+    volumes:
+      - statup:/app
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+  dozzle:
+    image: amir20/dozzle
+    container_name: dozzle
+    hostname: dozzle
+    restart: unless-stopped
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+      - DOZZLE_USERNAME=${DOZZLE_USERNAME}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - homelab
+
+
+  wyl:
+    image: aceberg/watchyourlan
+    container_name: watchyourlan
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+    - ${WYL_CONFIG}/watchyourlan:/data
+    environment:
+      - TZ=${TZ}
+      - IFACE=${WYL_ETHERNET_IFACE}
+      - GUIIP=${WYL_GUIIP}

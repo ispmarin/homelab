@@ -1,0 +1,10 @@
+[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = -/sbin/ethtool --change {{ ansible_default_ipv4.interface }} wol g
+
+
+[Install]
+WantedBy=basic.target

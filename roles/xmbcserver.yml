@@ -1,0 +1,8 @@
+---
+
+- hosts: xmbcservers 
+  roles:
+    - role: linuxbase
+      tags: linuxbase
+    - role: xmbcserver
+      tags: xmbcserver

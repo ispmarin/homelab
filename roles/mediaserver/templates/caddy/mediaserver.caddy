@@ -1,0 +1,24 @@
+@torrent host torrent.{{ inventory_hostname }}
+    handle @torrent {
+        reverse_proxy transmission:9091
+}
+
+@series host series.{{ inventory_hostname }}
+    handle @series {
+        reverse_proxy sonarr:8989
+}
+
+@jackett host jackett.{{ inventory_hostname }}
+    handle @jackett {
+        reverse_proxy jackett:9117
+}
+
+@jellyfin host play.{{ inventory_hostname }}
+    handle @jellyfin {
+        reverse_proxy jellyfin:8096
+}
+
+@movies host movies.{{ inventory_hostname }}
+    handle @movies {
+        reverse_proxy radarr:7878
+}

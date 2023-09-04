@@ -1,0 +1,6 @@
+---
+
+- hosts: nas
+  roles:
+    - role: synology
+      tags: synology

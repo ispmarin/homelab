@@ -1,0 +1,10 @@
+---
+headscale_user: headscale
+headscale_group: headscale
+headscale_server_url: https://hs1.tunguska.c
+headscale_server_port: 4433
+headscale_webui_url: https://headscale.akita.tunguska.cc
+
+headscale_etc: /etc/headscale
+headscale_home: /var/lib/headscale
+headscale_run: /var/run/headscale

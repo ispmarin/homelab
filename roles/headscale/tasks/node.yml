@@ -1,0 +1,3 @@
+- name: Run exit node on tailscale
+  ansible.builtin.shell: |
+    tailscale up --login-server https://hs1.tunguska.cc:4433 --accept-dns=false --advertise-exit-node

@@ -1,0 +1,29 @@
+@vault host vault.{{ inventory_hostname }}
+    handle @vault {
+        reverse_proxy vaultwarden:80
+}
+
+@sync host sync.{{ inventory_hostname }}
+    handle @sync  {
+    reverse_proxy host.docker.internal:8384
+}
+
+@file host files.{{ inventory_hostname }}
+    handle @file  {
+    reverse_proxy filebrowser:80
+}
+
+@monitor host statup.{{ inventory_hostname }}
+    handle @monitor {
+        reverse_proxy statup:8080
+    }
+
+@dozzle host dockerlogs.{{ inventory_hostname }}
+    handle @dozzle {
+        reverse_proxy dozzle:8080
+    }
+
+@wyl host wyl.{{ inventory_hostname }}
+    handle @wyl {
+        reverse_proxy host.docker.internal:8840
+    }

@@ -1,0 +1,4 @@
+[Vaultwarden]
+title=Vaultwarden
+description=Vaultwarden websocket port
+ports=3012/tcp|3012/udp

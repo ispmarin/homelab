@@ -1,0 +1,4 @@
+[wireguard]
+title=Wireguard
+description=Wireguard VPN server
+ports=55555/tcp|55555/udp

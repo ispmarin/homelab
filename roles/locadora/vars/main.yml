@@ -1,0 +1,18 @@
+---
+movies_path: "{{ media_path }}/movies"
+series_path: "{{ media_path }}/series"
+books_path:  "{{ media_path }}/books"
+music_path:  "{{ media_path }}/music"
+
+
+jellyfin_config_path:     "{{ data_services_path }}/jellyfin"
+
+locadora_packages:
+  - ffmpeg
+  - lame
+  - libmp3lame0
+  - vainfo
+  - lshw
+  - fail2ban
+
+render_host_group: 107

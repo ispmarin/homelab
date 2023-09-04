@@ -1,0 +1,8 @@
+---
+
+- hosts: fileservers 
+  roles:
+    - role: linuxbase
+      tags: linuxbase
+    - role: fileserver
+      tags: fileserver

@@ -1,0 +1,26 @@
+---
+- name: Add Tailscale apt repository
+  block:
+    - name: tailscale |no apt key
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg
+        dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+
+    - name: tailscale | apt source
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bookworm main"
+        state: present
+        filename: tailscale
+
+    - name: Install tailscale
+      ansible.builtin.apt:
+        package: tailscale
+        state: latest
+        install_recommends: no
+        update_cache: yes
+        autoclean: yes
+        autoremove: yes
+
+- name: Run exit node on tailscale
+  ansible.builtin.shell: |
+    tailscale up --login-server https://hs1.tunguska.cc:4433 --accept-dns=false --advertise-exit-node

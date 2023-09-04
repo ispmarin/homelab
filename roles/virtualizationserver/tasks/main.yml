@@ -1,0 +1,68 @@
+---
+
+- name: Install apt packages
+  ansible.builtin.package:
+    state: latest
+    install_recommends: no
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+    name: "{{ virtualization_packages }}"
+
+- name: Add users to libvirt groups
+  ansible.builtin.user:
+    state: present
+    name: "{{ item }}"
+    groups: libvirt
+    append: yes
+  loop:
+    - "{{ user }}"
+    - "{{ service_user }}"
+
+#- name: Copy br0 file
+#  ansible.builtin.copy:
+#    src: bridge/br0.cfg
+#    dest: /etc/network/interfaces.d/br0.cfg
+
+- name: Add the br_netfilter
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Sysctl bridge configuration
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+  loop:
+    - { name: net.bridge.bridge-nf-call-ip6tables, value: 0}
+    - { name: net.bridge.bridge-nf-call-iptables, value: 0}
+    - { name: net.bridge.bridge-nf-call-arptables, value: 0}
+
+
+- name: Setup Docker Compose services
+  tags: [docker,never]
+  block:
+
+  - name: Copy files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/docker-compose.virtualization.yml, dest: "{{ docker_compose_path }}/docker-compose.virtualization.yml" }
+
+
+  - name: Copy template files
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX
+    loop:
+      - { src: docker-compose/virtualization.env, dest: "{{ docker_compose_path }}/.virtualization.env" }
+      - { src: caddy/virtualization.caddy, dest: "{{ webserver_path }}/config/virtualization.caddy" }
+      

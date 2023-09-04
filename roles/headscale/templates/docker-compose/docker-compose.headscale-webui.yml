@@ -1,0 +1,25 @@
+version: "3"
+
+networks:
+  homelab:
+    external: true
+
+services:
+  headscale-webui:
+    image: ghcr.io/ifargle/headscale-webui:latest
+    container_name: headscale-webui
+    environment:
+      - TZ=${TZ}
+      - COLOR=red
+      - HS_SERVER=${HEADSCALE_SERVER_URL}
+      - DOMAIN_NAME=${HEADSCALE_WEBUI_URL}
+      - KEY="${HEADSCALE_WEBUI_SECRET}"
+      - AUTH_TYPE=basic
+      - LOG_LEVEL=info
+      - BASIC_AUTH_USER=${HEADSCALE_USER}
+      - BASIC_AUTH_PASS=${HEADSCALE_PASSWD}
+    networks:
+      - homelab
+    volumes:
+      - ${HEADSCALE_DATA}/webui:/data
+      - ${HEADSCALE_CONFIG}:/etc/headscale/:ro

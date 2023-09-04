@@ -1,0 +1,22 @@
+---
+movies_path: "{{ media_path }}/movies"
+series_path: "{{ media_path }}/series"
+books_path:  "{{ media_path }}/books"
+music_path:  "{{ media_path }}/music"
+
+transmission_config_path: "{{ data_services_path }}/transmission"
+sonarr_config_path:       "{{ data_services_path }}/sonarr"
+radarr_config_path:       "{{ data_services_path }}/radarr"
+lidarr_config_path:       "{{ data_services_path }}/lidarr"
+jellyfin_config_path:     "{{ data_services_path }}/jellyfin"
+beets_config_path:        "{{ data_services_path }}/beets"
+headphones_config_path:   "{{ data_services_path }}/headphones"
+
+media_packages:
+  - ffmpeg
+  - lame
+  - libmp3lame0
+  - vainfo
+  - lshw
+
+render_host_group: 107

@@ -1,0 +1,18 @@
+  ---
+
+virtualization_packages: 
+  - qemu-kvm 
+  - libvirt-clients 
+  - libvirt-daemon-system 
+  - bridge-utils 
+  - virtinst 
+  - libvirt-daemon
+  - qemu-system
+  - dnsmasq
+  - qemu-utils
+  - qemu-block-extra
+  - qemu-system-arm 
+  - qemu-efi
+
+ravada_config: "/etc/ravada"
+ravada_storage: "/srv/libvirt/images"

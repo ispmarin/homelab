@@ -1,0 +1,111 @@
+---
+version: '3.5'
+
+networks:
+  homelab:
+    external: true
+
+volumes:
+  jackett_config:
+
+services:
+
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    env_file:
+      - .media.env
+    environment:
+      - PUID=${PGID}
+      - PGID=${PUID}
+      - TZ=${TZ}
+    volumes:
+      - ${TRANSMISSION_CONFIG_PATH}:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    hostname: sonarr
+    env_file:
+      - .media.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${SONARR_CONFIG_PATH}:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${SERIES_PATH}:/series
+      - ${ARCHIVE_SERIES_PATH}:/archive/series
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    hostname: radarr
+    env_file:
+      - .media.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${RADARR_CONFIG_PATH}:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${MOVIES_PATH}:/movies
+      - ${ARCHIVE_MOVIES_PATH}:/archive/movies
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    env_file:
+      - .media.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - AUTO_UPDATE=true
+    volumes:
+      - jackett_config:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  jellyfin:
+    image: ghcr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - NVIDIA_VISIBLE_DEVICES=all
+    privileged: true
+    volumes:
+      - ${JELLYFIN_CONFIG_PATH}:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${SERIES_PATH}:/series
+      - ${MOVIES_PATH}:/movies
+      - ${MUSIC_PATH}:/music
+    restart: unless-stopped
+    networks:
+      - homelab
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+
+
+  

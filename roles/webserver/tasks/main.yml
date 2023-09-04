@@ -1,0 +1,49 @@
+---
+
+- name: Install apt packages
+  package:
+    state: latest
+    install_recommends: no
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+    name: "{{ webserver_packages }}"
+  ignore_errors: true
+
+- name: Create folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g=+rwX,o=+rX
+    recurse: yes
+  loop:
+    - "{{ docker_compose_path }}"
+    - "{{ webserver_path }}"
+    - "{{ webserver_path }}/config"
+    
+- name: Copy Caddy config file
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX,o+rX
+  loop: 
+    - { src: caddy/Caddyfile, dest: "{{ webserver_path }}/Caddyfile" }
+    - { src: caddy/Dockerfile, dest: "{{ webserver_path }}/Dockerfile" }
+
+- name: Setup Docker Compose services
+  tags: docker
+  block:
+  - name: Copy Docker env file
+    ansible.builtin.template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
+      mode: g+rwX,o+rX
+    loop:
+      - { src: docker-compose/webserver.env, dest: "{{ docker_compose_path }}/.webserver.env" }
+      - { src: docker-compose/docker-compose.webserver.yml, dest: "{{ docker_compose_path }}/docker-compose.webserver.yml"}

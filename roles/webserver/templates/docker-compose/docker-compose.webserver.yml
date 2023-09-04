@@ -1,0 +1,29 @@
+---
+version: '3.5'
+
+networks:
+  homelab:
+    external: true
+
+services:
+
+  caddy:
+    image: tunguskacc/caddy
+    build:
+      context: "{{ webserver_path }}"
+      dockerfile: Dockerfile
+    container_name: caddy
+    restart: unless-stopped
+    networks:
+      - homelab
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${CADDY_CONFIG_FILE}:/etc/caddy/Caddyfile
+      - ${CADDY_DATA}:/data
+      - ${CADDY_CONFIG}:/config
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment:
+      - CADDY_INGRESS_NETWORKS=homelab

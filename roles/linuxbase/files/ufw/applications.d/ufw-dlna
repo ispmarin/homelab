@@ -1,0 +1,5 @@
+[dlna]
+title=DLNA server
+description=MiniDLNA is a media server using the DLNA protocol
+ports=1900/udp|5000,8200/tcp
+

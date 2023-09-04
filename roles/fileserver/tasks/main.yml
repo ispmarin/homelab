@@ -1,0 +1,65 @@
+---
+
+- name: Install apt packages
+  package:
+    state: latest
+    install_recommends: no
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+    name: "{{ fileserver_packages }}"
+
+- name: Add fileserver groups to "{{ user }}"
+  ansible.builtin.user:
+    name: "{{ user }}"
+    state: present
+    groups: "{{ fileserver_user_groups }}"
+    append: yes
+
+- name: Create storage folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: g+rwX,o+rX
+  loop:
+    - "{{ media_path }}"
+    - "{{ downloads_path }}"
+
+- name: Setup ZFS NFS share
+  ansible.builtin.shell: zfs set sharenfs='ro=@192.168.1.0/24' storage/srv
+
+- name: Setup avahi NFS share
+  ansible.builtin.copy:
+    src: avahi/nfs_srv.service
+    dest: /etc/avahi/services/nfs_srv.service
+    mode: g+rw
+    group: "{{ service_group }}"
+
+- name: Setup Samba
+  tags: samba
+  block:
+  - name: Copy Samba configuration
+    template:
+      src: samba/smb.conf.j2
+      dest: /etc/samba/smb.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Setup Samba password for {{ user }}
+    ansible.builtin.shell: 
+      cmd: "( echo {{ smbpass }}; echo {{ smbpass }})  | smbpasswd -a {{ item }}"
+    loop:
+      - "{{ user }}"
+      - "{{ service_user }}"
+
+- name: Restart data sharing services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  loop:
+    - smbd

@@ -1,0 +1,4 @@
+[EDGESSH]
+title=edgessh
+description=Change SSH ports
+ports=2233/tcp

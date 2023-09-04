@@ -1,0 +1,7 @@
+pool pool.ntp.org
+
+server 0.br.pool.ntp.org iburst
+server 1.br.pool.ntp.org iburst
+server 2.br.pool.ntp.org iburst
+server 3.br.pool.ntp.org iburst
+

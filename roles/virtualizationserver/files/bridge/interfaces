@@ -1,0 +1,10 @@
+auto lo
+iface lo inet loopback
+
+auto enp8s0
+iface enp8s0 inet manual
+        ethernet-wol g
+        up /sbin/ethtool -s $IFACE wol g
+
+
+source /etc/network/interfaces.d/*.cfg

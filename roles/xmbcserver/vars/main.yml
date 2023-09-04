@@ -1,0 +1,35 @@
+---
+movies_path: "{{ media_path }}/movies"
+series_path: "{{ media_path }}/series"
+books_path:  "{{ media_path }}/books"
+music_path:  "{{ media_path }}/music"
+archive_movies_path: "{{ media_path }}/archive/movies"
+archive_series_path: "{{ media_path }}/archive/series"
+
+mediaserver_packages:
+  - kodi
+  - lightdm
+  - x11vnc
+  - xserver-xorg-core 
+  - xinit 
+  - xfonts-100dpi 
+  - xfonts-75dpi 
+  - xfonts-scalable 
+  - xfonts-base 
+  - xterm
+  - accountsservice
+  - kodi-vfs-sftp
+  - kodi-inputstream-ffmpegdirect
+  - kodi-inputstream-adaptive
+  - kodi-audioencoder-lame
+  - kodi-audioencoder-flac
+  - kodi-audioencoder-vorbis
+  - kodi-audioencoder-wav
+  - kodi-imagedecoder-heif
+  - kodi-peripheral-joystick
+  - cec-utils
+  - youtube-dl
+  - libdvdread8
+  - libdvd-pkg
+
+kodi_groups: cdrom,audio,render,video,plugdev,users,dialout,dip,input

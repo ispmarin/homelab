@@ -1,0 +1,16 @@
+---
+
+fileserver_packages:
+  - samba
+  - smbclient
+  - samba-common-bin
+  - nfs-kernel-server
+  - zfsutils-linux
+  - zfs-zed
+  - zfs-dkms
+  - linux-headers-amd64
+  - nfs-common
+  - avahi-daemon
+  - avahi-utils
+
+fileserver_user_groups: sambashare
