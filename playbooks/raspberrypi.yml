@@ -1,0 +1,14 @@
+
+#    - name: Install apt packages
+#      package:
+#        state: latest
+#        install_recommends: no
+#        update_cache: yes
+#        autoclean: yes
+#        autoremove: yes
+#        name:
+#          - bluetooth
+#          - firmware-iwlwifi
+#          - rfkill
+#          - raspi-firmware
+#      when: platform_name=raspberrypi

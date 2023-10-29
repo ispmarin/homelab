@@ -36,20 +36,6 @@
         autoremove: true
       ignore_errors: true
 
-#    - name: Install apt packages
-#      package:
-#        state: latest
-#        install_recommends: no
-#        update_cache: yes
-#        autoclean: yes
-#        autoremove: yes
-#        name:
-#          - bluetooth
-#          - firmware-iwlwifi
-#          - rfkill
-#          - raspi-firmware
-#      when: platform_name=raspberrypi
-
 - name: Create service group
   ansible.builtin.group:
     name: "{{ service_group }}"
@@ -80,13 +66,6 @@
     owner: root
   loop:
     - { src: sudo/user_sudo.j2, dest: "/etc/sudoers.d/{{ user }}"}
-    - { src: wakeonlan/wol.service, dest: /etc/systemd/system/wol.service }
-
-- name: Enable wakeonlan service
-  ansible.builtin.systemd:
-    name: wol.service
-    enabled: true
-    state: reloaded
 
 - name: Copy Chrony configuration
   ansible.builtin.copy:

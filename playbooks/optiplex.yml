@@ -1,1 +1,9 @@
 https://github.com/kholia/OSX-KVM
+
+    # - { src: wakeonlan/wol.service, dest: /etc/systemd/system/wol.service }
+
+- name: Enable wakeonlan service
+  ansible.builtin.systemd:
+    name: wol.service
+    enabled: true
+    state: reloaded

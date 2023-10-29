@@ -82,3 +82,7 @@
                }
       	respond "Meteors fall from the sky"
       }
+
+- name: Run exit node on tailscale
+  ansible.builtin.shell: |
+    tailscale up --login-server https://hs1.tunguska.cc:4433  --advertise-exit-node --reset

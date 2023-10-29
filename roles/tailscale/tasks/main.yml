@@ -21,6 +21,10 @@
         autoclean: yes
         autoremove: yes
 
-- name: Run exit node on tailscale
+- name: Add node to headscale
   ansible.builtin.shell: |
-    tailscale up --login-server https://hs1.tunguska.cc:4433 --accept-dns=false --advertise-exit-node
+    tailscale up --login-server https://hs1.tunguska.cc:4433 --accept-dns=false
+    register: tailscaleout
+
+- name: Output tailscale login information
+  ansible.builtin.debug: var=tailscaleout.stdout_lines

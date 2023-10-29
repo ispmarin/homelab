@@ -1,0 +1,8 @@
+---
+
+- hosts: tailscale
+  roles:
+    - role: linuxbase
+      tags: linuxbase
+    - role: tailscale
+      tags: tailscale

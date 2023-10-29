@@ -1,0 +1,9 @@
+
+/system logging action
+add name=nas remote=192.168.1.2 remote-port=514 target=remote
+
+/system logging
+add action=nas topics=info
+add action=nas topics=warning
+add action=nas topics=critical
+add action=nas topics=error
